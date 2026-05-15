@@ -378,7 +378,24 @@
             const q = query(expensesRef);
 
             unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
+                // 👉 第一件事：只要 Firebase 有回應，就立刻關掉轉圈圈！
+                if (els.loadingSpinner) {
+                    els.loadingSpinner.style.display = 'none';
+                }
+
+                // 先清空本地陣列
                 allExpenses = [];
+
+                // 👉 第二件事：檢查是不是收到「空箱子」
+                if (snapshot.empty) {
+                    console.log("目前資料庫是空的喔！");
+                    // 這裡記得要更新畫面，這樣刪除最後一筆資料時畫面才會乾淨
+                    renderDashboard();
+                    renderExpenseList();
+                    return; // 提早結束，不要跑下面的迴圈
+                }
+
+                // 第三件事：如果有資料，才開始把資料放上網頁
                 snapshot.forEach((doc) => {
                     allExpenses.push({ id: doc.id, ...doc.data() });
                 });
@@ -390,7 +407,6 @@
                     return timeB - timeA; // 新的在上面
                 });
 
-                els.loadingSpinner.style.display = 'none';
                 renderDashboard();
                 renderExpenseList();
             }, (error) => {
