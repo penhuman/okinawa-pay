@@ -238,14 +238,22 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // 環境變數設定
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'frida-expense-tracker';
-        let firebaseConfig = null;
-        let app, db, auth;
-        let currentUser = null;
+        const appId = 'frida-expense-tracker';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyB3lec_LqZp2kOAiX2m2dnEBEl_g64RtEs",
+            authDomain: "okinawa-pay.firebaseapp.com",
+            projectId: "okinawa-pay",
+            storageBucket: "okinawa-pay.firebasestorage.app",
+            messagingSenderId: "930388492756",
+            appId: "1:930388492756:web:d9bbcfffb188da741c1641",
+            measurementId: "G-34172NPL0D"
+        };
+        
+        let app, db;
         let unsubscribeSnapshot = null;
         let allExpenses = [];
         let currentFilter = 'all';
@@ -341,25 +349,10 @@
 
         async function initFirebase() {
             try {
-                if (typeof __firebase_config !== 'undefined') {
-                    firebaseConfig = JSON.parse(__firebase_config);
-                } else {
-                    throw new Error("找不到 Firebase 設定");
-                }
-
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
-                auth = getAuth(app);
 
-                // 登入處理
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                
-                currentUser = auth.currentUser;
-                
+                // 移除登入要求，直接顯示連線成功
                 els.authStatus.innerHTML = '<i class="fa-solid fa-cloud text-green-500 mr-1"></i>已連線';
                 els.authStatus.classList.remove('text-primary', 'bg-orange-100');
                 els.authStatus.classList.add('text-green-700', 'bg-green-100');
@@ -378,8 +371,6 @@
         }
 
         function setupRealtimeListener() {
-            if (!currentUser) return;
-
             // 注意：為了共享帳本，使用 public data collection
             const expensesRef = collection(db, 'artifacts', appId, 'public', 'data', 'expenses');
             
@@ -603,8 +594,6 @@
 
         
         async function saveExpense() {
-            if (!currentUser) return;
-            
             const amount = Number(els.amountInput.value);
             const title = els.titleInput.value.trim();
             const note = els.noteInput.value.trim();
@@ -663,8 +652,6 @@
         }
 
         async function deleteExpense() {
-            if (!currentUser) return;
-            
             const id = els.expenseId.value;
             if (!id) return;
 
