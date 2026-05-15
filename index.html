@@ -427,35 +427,9 @@
             els.tedPaid.textContent = `$${formatMoney(Math.round(tedTotal))}`;
             els.xingxuanPaid.textContent = `$${formatMoney(Math.round(xingxuanTotal))}`;
 
-            // 計算結算金額 (假設花費由 3 人平分)
-            const perPerson = total / 3;
-            els.settlementHint.classList.remove('hidden');
-            
-            if (total === 0) {
-                 els.settlementHint.classList.add('hidden');
-            } else {
-                const balances = [
-                    { name: 'Frida', balance: fridaTotal - perPerson },
-                    { name: 'Ted', balance: tedTotal - perPerson },
-                    { name: '幸萱', balance: xingxuanTotal - perPerson }
-                ];
-                
-                let html = `<div class="text-gray-600 mb-2 font-bold border-b border-gray-200 pb-1">平均每人應付: $${formatMoney(Math.round(perPerson))}</div>`;
-                
-                balances.forEach(b => {
-                    const diff = Math.round(b.balance);
-                    if (diff > 0) {
-                        html += `<div class="mt-1">${b.name} <span class="text-green-600 font-bold">應收回 $${formatMoney(diff)}</span></div>`;
-                    } else if (diff < 0) {
-                        html += `<div class="mt-1">${b.name} <span class="text-red-500 font-bold">需再拿 $${formatMoney(Math.abs(diff))}</span></div>`;
-                    } else {
-                        html += `<div class="mt-1">${b.name} <span class="text-gray-500">已結清</span></div>`;
-                    }
-                });
-                
-                els.settlementHint.innerHTML = html;
-                els.settlementHint.className = "mt-4 text-sm font-medium bg-white p-4 rounded-xl text-left border border-gray-200 shadow-sm";
-            }
+            // 已依要求取消平均結算與提示功能
+            els.settlementHint.classList.add('hidden');
+            els.settlementHint.innerHTML = '';
         }
 
         // 渲染花費列表
