@@ -568,6 +568,7 @@
 
         
         async function saveExpense() {
+            console.log("👉 1. 儲存函數開始執行！");
             const amount = Number(els.amountInput.value);
             const title = els.titleInput.value.trim();
             const note = els.noteInput.value.trim();
@@ -587,6 +588,7 @@
                 return;
             }
 
+            console.log("👉 2. 準備收集表單資料...");
             const expenseData = {
                 amount,
                 currency,
@@ -596,28 +598,32 @@
                 note,
                 updatedAt: serverTimestamp()
             };
+            console.log("👉 3. 即將送給 Firebase 的資料：", expenseData);
 
             const origText = els.saveExpenseBtn.innerHTML;
             els.saveExpenseBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 儲存中...';
             els.saveExpenseBtn.disabled = true;
 
             try {
+                console.log("👉 4. 呼叫 Firestore，等待 Firebase 回應...");
                 const collectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'expenses');
                 
                 if (id) {
                     // 更新
                     const docRef = doc(collectionRef, id);
                     await updateDoc(docRef, expenseData);
+                    console.log("👉 5. 🎉 Firebase 成功更新資料了！");
                     showToast("更新成功", "success");
                 } else {
                     // 新增
                     expenseData.createdAt = serverTimestamp();
                     await addDoc(collectionRef, expenseData);
+                    console.log("👉 5. 🎉 Firebase 成功新增資料了！");
                     showToast("新增成功", "success");
                 }
                 closeModal();
             } catch (error) {
-                console.error("儲存失敗:", error);
+                console.error("🚨 發生錯誤了：", error);
                 showToast("儲存失敗，請重試", "error");
             } finally {
                 els.saveExpenseBtn.innerHTML = origText;
